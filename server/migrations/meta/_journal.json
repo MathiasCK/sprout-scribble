@@ -22,6 +22,34 @@
       "when": 1716878910893,
       "tag": "0002_tired_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1716883130449,
+      "tag": "0003_brave_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1716883275080,
+      "tag": "0004_aspiring_toad_men",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1716883731787,
+      "tag": "0005_robust_monster_badoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1716884255519,
+      "tag": "0006_flashy_secret_warriors",
+      "breakpoints": true
     }
   ]
 }
