@@ -1,9 +1,8 @@
 import { auth } from "~/server/auth";
-import UserButton from "./user-button";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
-import { Logo } from "~/components/nav";
+import { Logo, UserButton } from "~/components/nav";
 
 const Navbar = async () => {
   const session = await auth();
