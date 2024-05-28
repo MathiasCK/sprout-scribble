@@ -40,7 +40,9 @@ const RegisterForm = () => {
       if (data.error) {
         setError(data.error);
       }
-      setSuccess(data.success!);
+      if (data.success) {
+        setSuccess(data.success);
+      }
     },
   });
 

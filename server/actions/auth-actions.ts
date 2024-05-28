@@ -50,7 +50,9 @@ export const emailRegister = action(
           verificationToken[0].token,
         );
 
-        return response;
+        return response.error
+          ? { error: response.error }
+          : { success: response.success };
       }
       return { error: "Email already in use" };
     }
@@ -67,7 +69,9 @@ export const emailRegister = action(
       verificationToken[0].token,
     );
 
-    return response;
+    return response.error
+      ? { error: response.error }
+      : { success: response.success };
   },
 );
 

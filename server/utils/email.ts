@@ -28,7 +28,7 @@ export const sendVerificationEmail = async (
 ) => {
   try {
     const confirmLink = `${domain}/verify?token=${token}`;
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: "onboarding@resend.dev",
       to: email,
       subject: "Sprout & scribble - Verify your email",
