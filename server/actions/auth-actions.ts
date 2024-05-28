@@ -5,9 +5,10 @@ import { createSafeActionClient } from "next-safe-action";
 import { loginSchema, registerSchema } from "~/types";
 import db from "~/server";
 import { eq } from "drizzle-orm";
-import { users } from "~/server/schema";
+import { emailTokens, users } from "~/server/schema";
 import {
   generateEmailVerificationToken,
+  getVerificationTokenByEmail,
   sendVerificationEmail,
 } from "~/server/utils";
 
@@ -44,9 +45,12 @@ export const emailRegister = action(
     if (existingUser) {
       if (!existingUser.emailVerified) {
         const verificationToken = await generateEmailVerificationToken(email);
-        await sendVerificationEmail(email, verificationToken[0].token);
+        const response = await sendVerificationEmail(
+          email,
+          verificationToken[0].token,
+        );
 
-        return { success: "Email confirmation resent" };
+        return response;
       }
       return { error: "Email already in use" };
     }
@@ -58,8 +62,42 @@ export const emailRegister = action(
     });
 
     const verificationToken = await generateEmailVerificationToken(email);
-    await sendVerificationEmail(email, verificationToken[0].token);
+    const response = await sendVerificationEmail(
+      email,
+      verificationToken[0].token,
+    );
 
-    return { success: "Email confirmation sent" };
+    return response;
   },
 );
+
+export const verifyEmailVerificationToken = async (token: string) => {
+  const existingToken = await getVerificationTokenByEmail(token);
+
+  if (!existingToken) {
+    return { error: "Token not found" };
+  }
+
+  const hasExpired = new Date(existingToken.expires) < new Date();
+
+  if (hasExpired) {
+    return { error: "Token has expired" };
+  }
+
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.email, existingToken.email),
+  });
+
+  if (!existingUser) {
+    return { error: "Email does not exist" };
+  }
+
+  await db.update(users).set({
+    emailVerified: new Date(),
+    email: existingToken.email,
+  });
+
+  await db.delete(emailTokens).where(eq(emailTokens.id, existingToken.id));
+
+  return { success: "Email verified" };
+};

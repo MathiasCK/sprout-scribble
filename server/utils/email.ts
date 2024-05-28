@@ -1,7 +1,7 @@
 "use server";
 
 import db from "~/server";
-import { eq } from "drizzle-orm";
+import { eq, is } from "drizzle-orm";
 import { emailTokens } from "~/server/schema";
 import { getBaseURL } from "~/lib/utils";
 import { Resend } from "resend";
@@ -12,7 +12,7 @@ const domain = getBaseURL();
 export const getVerificationTokenByEmail = async (email: string) => {
   try {
     const token = await db.query.emailTokens.findFirst({
-      where: eq(emailTokens.email, email),
+      where: eq(emailTokens.token, email),
     });
 
     return token;
@@ -21,34 +21,30 @@ export const getVerificationTokenByEmail = async (email: string) => {
   }
 };
 
-export const generateEmailVerificationToken = async (email: string) => {
-  const token = crypto.randomUUID();
-  const expires = new Date(new Date().getTime() + 3600 * 1000);
+export const sendVerificationEmail = async (
+  email: string,
+  token: string,
+  isResending = false,
+) => {
+  try {
+    const confirmLink = `${domain}/verify?token=${token}`;
+    const { data, error } = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "Sprout & scribble - Verify your email",
+      html: `<p>Click <a href="${confirmLink}">here</a> to verify your email</p>`,
+    });
 
-  const existingToken = await getVerificationTokenByEmail(email);
+    if (error) {
+      return { error: error.message };
+    }
 
-  if (existingToken) {
-    await db.delete(emailTokens).where(eq(emailTokens.id, existingToken.id));
+    return {
+      success: isResending
+        ? "Email confirmation resent"
+        : "Email confirmation sent",
+    };
+  } catch (error) {
+    return { error: "Failed to send email" };
   }
-
-  const verificationToken = await db
-    .insert(emailTokens)
-    .values({
-      email,
-      token,
-      expires,
-    })
-    .returning();
-
-  return verificationToken;
-};
-
-export const sendVerificationEmail = async (email: string, token: string) => {
-  const confirmLink = `${domain}/verify?token=${token}`;
-  const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: email,
-    subject: "Sprout & scribble - Verify your email",
-    html: `<p>Click <a href="${confirmLink}">here</a> to verify your email</p>`,
-  });
 };

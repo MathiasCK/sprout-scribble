@@ -5,3 +5,4 @@ export { default as Socials } from "./socials";
 export { default as BackButton } from "./back-button";
 export { default as FormError } from "./form-error";
 export { default as FormSuccess } from "./form-success";
+export { default as EmailVerificationForm } from "./email-verification-form";
