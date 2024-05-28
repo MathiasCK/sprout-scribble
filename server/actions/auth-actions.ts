@@ -12,22 +12,61 @@ import {
   sendVerificationEmail,
 } from "~/server/utils";
 
+import { AuthError } from "next-auth";
+import { signIn } from "~/server/auth";
+
 const action = createSafeActionClient();
 
-export const emailSignIn = action(loginSchema, async ({ email }) => {
-  const existingUser = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
+export const emailSignIn = action(loginSchema, async ({ email, password }) => {
+  try {
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
 
-  if (existingUser?.email !== email) {
-    return { error: "Email not found" };
+    if (existingUser?.email !== email) {
+      return { error: "Invalid credentials" };
+    }
+
+    if (!existingUser?.emailVerified) {
+      const verificationToken = await generateEmailVerificationToken(
+        existingUser.email,
+      );
+      const response = await sendVerificationEmail(
+        email,
+        verificationToken[0].token,
+      );
+
+      return response.error
+        ? { error: response.error }
+        : { success: response.success };
+    }
+
+    await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    return { success: email };
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "AccessDenied":
+          return { error: "Access denied" };
+        case "CredentialsSignin":
+          return { error: "Invalid credentials" };
+        default:
+          return { error: "Something went wrong" };
+      }
+    }
+
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return {
+      error: "An unexpected error occurred",
+    };
   }
-
-  if (!existingUser?.emailVerified) {
-    // TODO: Send email verification
-  }
-
-  return { success: email };
 });
 
 export const emailRegister = action(
@@ -45,6 +84,7 @@ export const emailRegister = action(
         const response = await sendVerificationEmail(
           email,
           verificationToken[0].token,
+          true,
         );
 
         return response.error

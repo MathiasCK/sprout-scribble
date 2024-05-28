@@ -21,6 +21,7 @@ import { cn } from "~/lib/utils";
 import { useState } from "react";
 import { emailSignIn } from "~/server/actions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
   const form = useForm({
@@ -34,6 +35,8 @@ const LoginForm = () => {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
 
+  const router = useRouter();
+
   const { status, execute } = useAction(emailSignIn, {
     onSuccess: data => {
       if (data.error) {
@@ -41,6 +44,7 @@ const LoginForm = () => {
       }
       if (data.success) {
         setSuccess(data.success);
+        router.push("/");
       }
     },
   });
@@ -95,12 +99,12 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
+            <FormSuccess message={success} />
+            <FormError message={error} />
             <Button size="sm" variant="link" asChild>
               <Link href="/auth/reset">Forgot your password?</Link>
             </Button>
           </div>
-          <FormSuccess message={success} />
-          <FormError message={error} />
           <Button
             type="submit"
             className={cn("w-full my-2", {
