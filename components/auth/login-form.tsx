@@ -11,15 +11,16 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import AuthCard from "./auth-card";
+import { AuthCard, FormError, FormSuccess } from "~/components/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "~/types";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import { emailSignIn } from "~/server/actions";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 import { useAction } from "next-safe-action/hooks";
 import { cn } from "~/lib/utils";
+import { useState } from "react";
+import { emailSignIn } from "~/server/actions";
+import Link from "next/link";
 
 const LoginForm = () => {
   const form = useForm({
@@ -30,7 +31,19 @@ const LoginForm = () => {
     },
   });
 
-  const { status, execute } = useAction(emailSignIn, {});
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+
+  const { status, execute } = useAction(emailSignIn, {
+    onSuccess: data => {
+      if (data.error) {
+        setError(data.error);
+      }
+      if (data.success) {
+        setSuccess(data.success);
+      }
+    },
+  });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => execute(values);
 
@@ -86,6 +99,8 @@ const LoginForm = () => {
               <Link href="/auth/reset">Forgot your password?</Link>
             </Button>
           </div>
+          <FormSuccess message={success} />
+          <FormError message={error} />
           <Button
             type="submit"
             className={cn("w-full my-2", {
