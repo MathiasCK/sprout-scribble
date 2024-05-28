@@ -1,9 +1,9 @@
 "use client";
 
-import { Session, User } from "next-auth";
+import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 
-const UserButton = ({ user, expires }: Session) => {
+const UserButton = ({ user }: Session) => {
   return (
     <div>
       <h1>{user?.email}</h1>

@@ -14,24 +14,21 @@ import {
 
 const action = createSafeActionClient();
 
-export const emailSignIn = action(
-  loginSchema,
-  async ({ email, password, code }) => {
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.email, email),
-    });
+export const emailSignIn = action(loginSchema, async ({ email }) => {
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.email, email),
+  });
 
-    if (existingUser?.email !== email) {
-      return { error: "Email not found" };
-    }
+  if (existingUser?.email !== email) {
+    return { error: "Email not found" };
+  }
 
-    if (!existingUser?.emailVerified) {
-      // TODO: Send email verification
-    }
+  if (!existingUser?.emailVerified) {
+    // TODO: Send email verification
+  }
 
-    return { success: email };
-  },
-);
+  return { success: email };
+});
 
 export const emailRegister = action(
   registerSchema,
