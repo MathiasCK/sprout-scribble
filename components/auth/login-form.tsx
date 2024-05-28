@@ -17,6 +17,9 @@ import { loginSchema } from "~/types";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { emailSignIn } from "~/server/actions";
+import { useAction } from "next-safe-action/hooks";
+import { cn } from "~/lib/utils";
 
 const LoginForm = () => {
   const form = useForm({
@@ -27,7 +30,10 @@ const LoginForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {};
+  const { status, execute } = useAction(emailSignIn, {});
+
+  const onSubmit = (values: z.infer<typeof loginSchema>) => execute(values);
+
   return (
     <AuthCard
       cardTitle="Welcome back!"
@@ -80,7 +86,12 @@ const LoginForm = () => {
               <Link href="/auth/reset">Forgot your password?</Link>
             </Button>
           </div>
-          <Button type="submit" className="w-full my-2">
+          <Button
+            type="submit"
+            className={cn("w-full my-2", {
+              "animate-pulse": status === "executing",
+            })}
+          >
             Login
           </Button>
         </form>
