@@ -1,7 +1,7 @@
 "use server";
 
 import db from "~/server";
-import { eq, is } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { emailTokens } from "~/server/schema";
 import { getBaseURL } from "~/lib/utils";
 import { Resend } from "resend";
@@ -27,7 +27,7 @@ export const sendVerificationEmail = async (
   isResending = false,
 ) => {
   try {
-    const confirmLink = `${domain}/verify?token=${token}`;
+    const confirmLink = `${domain}/auth/verify?token=${token}`;
     const { error } = await resend.emails.send({
       from: "onboarding@resend.dev",
       to: email,
