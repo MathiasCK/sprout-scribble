@@ -22,6 +22,8 @@ import {
 
 import { AuthError } from "next-auth";
 import { signIn } from "~/server/auth";
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
 
 const action = createSafeActionClient();
 
@@ -182,6 +184,11 @@ export const forgotPassword = action(
 export const resetPassword = action(
   resetPasswordSchema,
   async ({ password, token }) => {
+    const pool = new Pool({
+      connectionString: process.env.POSTGRES_URL,
+    });
+    const dbPool = drizzle(pool);
+
     if (!token) {
       return { error: "Token is required" };
     }
@@ -208,7 +215,7 @@ export const resetPassword = action(
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await db.transaction(async tx => {
+    await dbPool.transaction(async tx => {
       await tx
         .update(users)
         .set({
