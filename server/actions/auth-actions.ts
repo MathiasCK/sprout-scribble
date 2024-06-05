@@ -2,14 +2,22 @@
 
 import bcrypt from "bcrypt";
 import { createSafeActionClient } from "next-safe-action";
-import { loginSchema, registerSchema } from "~/types";
+import {
+  loginSchema,
+  forgotPasswordSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "~/types";
 import db from "~/server";
 import { eq } from "drizzle-orm";
-import { emailTokens, users } from "~/server/schema";
+import { emailTokens, passwordResetTokens, users } from "~/server/schema";
 import {
   generateEmailVerificationToken,
   getVerificationTokenByEmail,
   sendVerificationEmail,
+  getPasswordResetTokenByToken,
+  generatePasswordResetToken,
+  sendPasswordResetEmail,
 } from "~/server/utils";
 
 import { AuthError } from "next-auth";
@@ -142,3 +150,77 @@ export const verifyEmailVerificationToken = async (token: string) => {
 
   return { success: "Email verified" };
 };
+
+export const forgotPassword = action(
+  forgotPasswordSchema,
+  async ({ email }) => {
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!existingUser) {
+      return { error: "User not found" };
+    }
+
+    const passwordResetToken = await generatePasswordResetToken(email);
+
+    if (!passwordResetToken) {
+      return { error: "Failed to generate password reset token" };
+    }
+
+    const response = await sendPasswordResetEmail(
+      passwordResetToken[0].email,
+      passwordResetToken[0].token,
+    );
+
+    return response.error
+      ? { error: response.error }
+      : { success: response.success };
+  },
+);
+
+export const resetPassword = action(
+  resetPasswordSchema,
+  async ({ password, token }) => {
+    if (!token) {
+      return { error: "Token is required" };
+    }
+
+    const existingToken = await getPasswordResetTokenByToken(token);
+
+    if (!existingToken) {
+      return { error: "Token not found" };
+    }
+
+    const hasExpired = new Date(existingToken.expires) < new Date();
+
+    if (hasExpired) {
+      return { error: "Token has expired" };
+    }
+
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, existingToken.email),
+    });
+
+    if (!existingUser) {
+      return { error: "User not found" };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db.transaction(async tx => {
+      await tx
+        .update(users)
+        .set({
+          password: hashedPassword,
+        })
+        .where(eq(users.id, existingUser.id));
+
+      await tx
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, existingToken.id));
+    });
+
+    return { success: "Password updated" };
+  },
+);

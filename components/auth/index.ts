@@ -6,3 +6,5 @@ export { default as BackButton } from "./back-button";
 export { default as FormError } from "./form-error";
 export { default as FormSuccess } from "./form-success";
 export { default as EmailVerificationForm } from "./email-verification-form";
+export { default as ForgotPasswordForm } from "./forgot-password-form";
+export { default as ResetPasswordForm } from "./reset-password-form";

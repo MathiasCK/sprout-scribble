@@ -28,3 +28,29 @@ export const registerSchema = loginSchema
       });
     }
   });
+
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, {
+      message: "Password must be at least 8 characters long",
+    }),
+    passwordConfirm: z.string().min(8, {
+      message: "Password confirmation is required",
+    }),
+    token: z.string().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.passwordConfirm) {
+      ctx.addIssue({
+        path: ["passwordConfirm"],
+        message: "Passwords do not match",
+        code: "custom",
+      });
+    }
+  });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+});

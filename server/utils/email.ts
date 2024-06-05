@@ -32,7 +32,7 @@ export const sendVerificationEmail = async (
       from: "onboarding@resend.dev",
       to: email,
       subject: "Sprout & scribble - Verify your email",
-      html: `<p>Click <a href="${confirmLink}">here</a> to verify your email</p>`,
+      html: /*html*/ `<p>Click <a href="${confirmLink}">here</a> to verify your email</p>`,
     });
 
     if (error) {
@@ -46,5 +46,27 @@ export const sendVerificationEmail = async (
     };
   } catch (error) {
     return { error: "Failed to send email" };
+  }
+};
+
+export const sendPasswordResetEmail = async (email: string, token: string) => {
+  try {
+    const confirmLink = `${domain}/auth/reset-password?token=${token}`;
+    const { error } = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "Sprout & scribble - Reset your password",
+      html: /*html*/ `<p>Click <a href="${confirmLink}">here</a> to reset your password</p>`,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return {
+      success: "Password reset email sent",
+    };
+  } catch (error) {
+    return { error: "Failed to send password reset email" };
   }
 };

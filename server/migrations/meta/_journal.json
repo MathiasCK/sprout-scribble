@@ -50,6 +50,13 @@
       "when": 1716884255519,
       "tag": "0006_flashy_secret_warriors",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1716899671956,
+      "tag": "0007_bitter_queen_noir",
+      "breakpoints": true
     }
   ]
 }
