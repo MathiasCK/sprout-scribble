@@ -6,18 +6,15 @@ export const settingsSchema = z
     image: z.optional(z.string()),
     isTwoFactorEnabled: z.optional(z.boolean()),
     email: z.optional(z.string().email()),
-    password: z.optional(z.string().min(8)),
+    currentPassword: z.optional(z.string().min(8)),
     newPassword: z.optional(z.string().min(8)),
   })
   .refine(
     data => {
-      if (data.password && !data.newPassword) {
+      if (data.currentPassword && !data.newPassword) {
         return false;
       }
       return true;
     },
-    {
-      message: "New password is required",
-      path: ["newPassword"],
-    },
+    { message: "New password is required", path: ["newPassword"] },
   );

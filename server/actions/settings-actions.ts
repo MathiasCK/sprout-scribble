@@ -28,19 +28,19 @@ export const updateSettings = action(settingsSchema, async values => {
 
   if (user.user.isOAuth) {
     values.email = undefined;
-    values.password = undefined;
+    values.currentPassword = undefined;
     values.newPassword = undefined;
     values.isTwoFactorEnabled = undefined;
   }
 
-  if (values.password && values.newPassword && dbUser.password) {
+  if (values.currentPassword && values.newPassword && dbUser.password) {
     const passwordMatch = await bcrypt.compare(
-      values.password,
+      values.currentPassword,
       dbUser.password,
     );
 
     if (!passwordMatch) {
-      return { error: "Invalid password" };
+      return { error: "Current password is not valid" };
     }
 
     const samePassword = await bcrypt.compare(
@@ -54,8 +54,8 @@ export const updateSettings = action(settingsSchema, async values => {
 
     const hashedPassword = await bcrypt.hash(values.newPassword, 10);
 
-    values.password = hashedPassword;
-    values.newPassword = undefined;
+    values.currentPassword = undefined;
+    values.newPassword = hashedPassword;
   }
 
   await db
@@ -63,7 +63,7 @@ export const updateSettings = action(settingsSchema, async values => {
     .set({
       name: values.name,
       email: values.email,
-      password: values.password,
+      password: values.newPassword,
       image: values.image,
       isTwoFactorEnabled: values.isTwoFactorEnabled,
     })
