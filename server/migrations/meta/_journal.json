@@ -64,6 +64,13 @@
       "when": 1717653601526,
       "tag": "0008_tiresome_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1717657643262,
+      "tag": "0009_daily_moon_knight",
+      "breakpoints": true
     }
   ]
 }
