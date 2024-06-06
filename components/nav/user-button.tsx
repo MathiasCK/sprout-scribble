@@ -16,8 +16,10 @@ import Image from "next/image";
 import { LogOutIcon, Moon, SettingsIcon, Sun, TruckIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const UserButton = ({ user }: Session) => {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [checked, setChecked] = useState<boolean>(false);
 
@@ -57,14 +59,20 @@ const UserButton = ({ user }: Session) => {
           </span>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="group py-2 font-medium cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => router.push("/dashboard/orders")}
+          className="group py-2 font-medium cursor-pointer"
+        >
           <TruckIcon
             size={14}
             className="mr-2 group-hover:translate-x-1 transition-all duration-300 ease-in-out"
           />
           My orders
         </DropdownMenuItem>
-        <DropdownMenuItem className="group py-2 font-medium cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => router.push("/dashboard/settings")}
+          className="group py-2 font-medium cursor-pointer"
+        >
           <SettingsIcon
             size={14}
             className="mr-2 group-hover:rotate-180 transition-all duration-300 ease-in-out"
