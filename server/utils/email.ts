@@ -70,3 +70,27 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     return { error: "Failed to send password reset email" };
   }
 };
+
+export const sendTwoFactorTokenByEmail = async (
+  email: string,
+  token: string,
+) => {
+  try {
+    const { error } = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "Sproud and Scribble - Your 2 Factor Token",
+      html: /*html*/ `<p>Your Confirmation Code: ${token}</p>`,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return {
+      success: "Two factor authentication code sent",
+    };
+  } catch (error) {
+    return { error: "Failed to send two factor authentication code" };
+  }
+};

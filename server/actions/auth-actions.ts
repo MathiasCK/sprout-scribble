@@ -10,7 +10,12 @@ import {
 } from "~/types";
 import db from "~/server";
 import { eq } from "drizzle-orm";
-import { emailTokens, passwordResetTokens, users } from "~/server/schema";
+import {
+  emailTokens,
+  passwordResetTokens,
+  twoFactorTokens,
+  users,
+} from "~/server/schema";
 import {
   generateEmailVerificationToken,
   getVerificationTokenByEmail,
@@ -18,6 +23,9 @@ import {
   getPasswordResetTokenByToken,
   generatePasswordResetToken,
   sendPasswordResetEmail,
+  getTwoFactorTokenByEmail,
+  generateTwoFactorToken,
+  sendTwoFactorTokenByEmail,
 } from "~/server/utils";
 
 import { AuthError } from "next-auth";
@@ -27,57 +35,95 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 
 const action = createSafeActionClient();
 
-export const emailSignIn = action(loginSchema, async ({ email, password }) => {
-  try {
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.email, email),
-    });
+export const emailSignIn = action(
+  loginSchema,
+  async ({ email, password, code }) => {
+    try {
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.email, email),
+      });
 
-    if (existingUser?.email !== email) {
-      return { error: "Invalid credentials" };
-    }
-
-    if (!existingUser?.emailVerified) {
-      const verificationToken = await generateEmailVerificationToken(
-        existingUser.email,
-      );
-      const response = await sendVerificationEmail(
-        email,
-        verificationToken[0].token,
-      );
-
-      return response.error
-        ? { error: response.error }
-        : { success: response.success };
-    }
-
-    await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    return { success: email };
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "AccessDenied":
-          return { error: "Access denied" };
-        case "CredentialsSignin":
-          return { error: "Invalid credentials" };
-        default:
-          return { error: "Something went wrong" };
+      if (existingUser?.email !== email) {
+        return { error: "Invalid credentials" };
       }
-    }
 
-    if (error instanceof Error) {
-      return { error: error.message };
+      if (!existingUser?.emailVerified) {
+        const verificationToken = await generateEmailVerificationToken(
+          existingUser.email,
+        );
+        const response = await sendVerificationEmail(
+          email,
+          verificationToken[0].token,
+        );
+
+        return response.error
+          ? { error: response.error }
+          : { success: response.success };
+      }
+
+      if (existingUser.isTwoFactorEnabled && existingUser.email) {
+        if (code) {
+          const twoFactorToken = await getTwoFactorTokenByEmail(
+            existingUser.email,
+          );
+          if (!twoFactorToken) {
+            return { error: "Invalid two factor token" };
+          }
+
+          if (twoFactorToken.token !== code) {
+            return { error: "Invalid two factor token" };
+          }
+
+          const hasExpired = new Date(twoFactorToken.expires) < new Date();
+
+          if (hasExpired) {
+            return { error: "Two factor token has expired" };
+          }
+
+          await db
+            .delete(twoFactorTokens)
+            .where(eq(twoFactorTokens.id, twoFactorToken.id));
+        } else {
+          const token = await generateTwoFactorToken(existingUser.email);
+
+          if (!token) {
+            return { error: "Token not generated!" };
+          }
+
+          await sendTwoFactorTokenByEmail(token[0].email, token[0].token);
+
+          return { twoFactor: "Two factor token sent to email" };
+        }
+      }
+
+      await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      return { success: email };
+    } catch (error) {
+      if (error instanceof AuthError) {
+        switch (error.type) {
+          case "AccessDenied":
+            return { error: "Access denied" };
+          case "CredentialsSignin":
+            return { error: "Invalid credentials" };
+          default:
+            return { error: "Something went wrong" };
+        }
+      }
+
+      if (error instanceof Error) {
+        return { error: error.message };
+      }
+      return {
+        error: "An unexpected error occurred",
+      };
     }
-    return {
-      error: "An unexpected error occurred",
-    };
-  }
-});
+  },
+);
 
 export const emailRegister = action(
   registerSchema,
