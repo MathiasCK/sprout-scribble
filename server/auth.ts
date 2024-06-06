@@ -7,7 +7,7 @@ import Credetials from "next-auth/providers/credentials";
 import { eq } from "drizzle-orm";
 import db from "~/server";
 import { loginSchema } from "~/types";
-import { users } from "~/server/schema";
+import { accounts, users } from "~/server/schema";
 import bcrypt from "bcrypt";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -16,6 +16,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
+  },
+  callbacks: {
+    async session({ session, token }) {
+      if (session && token.sub) {
+        session.user.id = token.sub;
+      }
+
+      if (session.user && token.role) {
+        session.user.role = token.role as string;
+      }
+
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+        session.user.image = token.image as string;
+        session.user.isOAuth = token.isOauth as boolean;
+      }
+
+      return session;
+    },
+    async jwt({ token }) {
+      if (!token.sub) return token;
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.id, token.sub),
+      });
+
+      const existingAccount = await db.query.accounts.findFirst({
+        where: eq(accounts.userId, existingUser!.id),
+      });
+
+      token.isOauth = !!existingAccount;
+      token.name = existingUser?.name;
+      token.email = existingUser?.email;
+      token.role = existingUser?.role;
+      token.isTwoFactorEnabled = existingUser?.isTwoFactorEnabled;
+      token.image = existingUser?.image;
+
+      return token;
+    },
   },
   providers: [
     Credetials({
