@@ -57,6 +57,13 @@
       "when": 1716899671956,
       "tag": "0007_bitter_queen_noir",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1717653601526,
+      "tag": "0008_tiresome_blizzard",
+      "breakpoints": true
     }
   ]
 }
