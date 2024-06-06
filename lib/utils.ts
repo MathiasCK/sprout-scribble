@@ -1,3 +1,9 @@
+import {
+  generateUploadButton,
+  generateUploadDropzone,
+} from "@uploadthing/react";
+
+import type { FileRouter } from "~/app/api/uploadthing/core";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,3 +16,6 @@ export const getBaseURL = () => {
 
   return `http://localhost:3000`;
 };
+
+export const UploadButton = generateUploadButton<FileRouter>();
+export const UploadDropzone = generateUploadDropzone<FileRouter>();
