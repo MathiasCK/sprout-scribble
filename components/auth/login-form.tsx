@@ -159,9 +159,11 @@ const LoginForm = () => {
               </Button>
             )}
           </div>
-          <Button type="submit" variant="link">
-            Resend OTP
-          </Button>
+          {showTwoFactor && (
+            <Button type="submit" variant="link">
+              Resend OTP
+            </Button>
+          )}
           <Button
             type="submit"
             className={cn("w-full my-2", {
