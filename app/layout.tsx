@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "~/components/nav";
 import { cn } from "~/lib/utils";
 import { ThemeProvider } from "~/components/providers";
+import Toaster from "~/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={cn(inter.className, "px-6 md:px-12 max-w-7xl mx-auto")}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Toaster />
           <Navbar />
           {children}
         </ThemeProvider>

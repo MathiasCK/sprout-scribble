@@ -27,8 +27,12 @@ import { DollarSignIcon } from "lucide-react";
 import { Tiptap } from "~/components/dashboard";
 import { useAction } from "next-safe-action/hooks";
 import { createProduct } from "~/server/actions";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const AddProductCard = () => {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -36,23 +40,25 @@ const AddProductCard = () => {
       description: "",
       price: 0,
     },
+    mode: "onBlur",
   });
 
   const { execute, status } = useAction(createProduct, {
     onSuccess: data => {
-      if (data.success) {
-        // eslint-disable-next-line no-console
-        console.log(data.success);
+      if (data?.success) {
+        router.push("/dashboard/products");
+        toast.success(data.success);
       }
 
-      if (data.error) {
-        // eslint-disable-next-line no-console
-        console.error(data.error);
+      if (data?.error) {
+        toast.error(data.error);
       }
     },
+    onExecute: () => {
+      toast.loading("Creating product...");
+    },
     onError: error => {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     },
   });
 
