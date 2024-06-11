@@ -1,2 +1,3 @@
 export * from "./auth-actions";
 export * from "./settings-actions";
+export * from "./product-actions";
