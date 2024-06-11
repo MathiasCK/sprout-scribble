@@ -16,3 +16,29 @@ export const productSchema = z.object({
       message: "Price should be a positive number",
     }),
 });
+
+export const variantSchema = z.object({
+  productId: z.number(),
+  id: z.number(),
+  editMode: z.boolean(),
+  productType: z.string().min(3, {
+    message: "Product type should be at least 3 characters long",
+  }),
+  color: z.string().min(3, {
+    message: "Color should be at least 3 characters long",
+  }),
+  variantTags: z.array(z.string()).min(1, {
+    message: "At least one tag is required",
+  }),
+  variantImages: z.array(
+    z.object({
+      url: z.string().refine(url => url.search("blob:") !== 0, {
+        message: "Please wait for the image to upload before saving.",
+      }),
+      size: z.number(),
+      key: z.string().optional(),
+      id: z.number().optional(),
+      name: z.string(),
+    }),
+  ),
+});
