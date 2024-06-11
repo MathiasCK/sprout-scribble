@@ -53,9 +53,7 @@ const ActionCell = ({ row }: { row: Row<ProductColumn> }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem className="dark:focus:bg-primary focus:bg-primary/50 cursor-pointer">
-          <Link href={`/dashboard/add-product?id=${product.id}`}>
-            Edit product
-          </Link>
+          <Link href={`/dashboard/product?id=${product.id}`}>Edit product</Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           className="dark:focus:bg-destructive focus:bg-destructive/50 cursor-pointer"

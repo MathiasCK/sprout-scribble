@@ -37,7 +37,7 @@ const DashboardNav = ({ isAdmin }: { isAdmin: boolean }) => {
         },
         {
           label: "Create",
-          path: "/dashboard/add-product",
+          path: "/dashboard/product",
           icon: <PenSquareIcon size={16} />,
         },
         {

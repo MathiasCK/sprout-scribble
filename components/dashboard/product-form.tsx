@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -26,12 +25,15 @@ import {
 import { DollarSignIcon } from "lucide-react";
 import { Tiptap } from "~/components/dashboard";
 import { useAction } from "next-safe-action/hooks";
-import { createProduct } from "~/server/actions";
-import { useRouter } from "next/navigation";
+import { handleProduct, getProduct } from "~/server/actions";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
-const AddProductCard = () => {
+const ProductForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editMode = !!searchParams.get("id");
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -43,7 +45,37 @@ const AddProductCard = () => {
     mode: "onBlur",
   });
 
-  const { execute, status } = useAction(createProduct, {
+  const checkProduct = async (id: number) => {
+    if (editMode) {
+      const { data } = await getProduct({
+        id,
+      });
+
+      if (data?.error) {
+        toast.error(data.error);
+        router.push("/dashboard/products");
+        return;
+      }
+
+      if (data?.success) {
+        form.setValue("title", data.success.title);
+        form.setValue("description", data.success.description);
+        form.setValue("price", data.success.price);
+        form.setValue("id", data.success.id);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (editMode) {
+      const id = searchParams.get("id");
+      if (id) {
+        checkProduct(Number(id));
+      }
+    }
+  }, []);
+
+  const { execute, status } = useAction(handleProduct, {
     onSuccess: data => {
       if (data?.success) {
         router.push("/dashboard/products");
@@ -55,7 +87,7 @@ const AddProductCard = () => {
       }
     },
     onExecute: () => {
-      toast.loading("Creating product...");
+      toast.loading(editMode ? "Updating product..." : "Creating product...");
     },
     onError: error => {
       toast.error(error instanceof Error ? error.message : "An error occurred");
@@ -67,8 +99,12 @@ const AddProductCard = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add Product</CardTitle>
-        <CardDescription>Add a new product to the store</CardDescription>
+        <CardTitle>{editMode ? "Edit product" : "Create product"}</CardTitle>
+        <CardDescription>
+          {editMode
+            ? "Make changes to existing product"
+            : "Add a brand new product"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -129,14 +165,13 @@ const AddProductCard = () => {
               disabled={status === "executing"}
               type="submit"
             >
-              Submit
+              {editMode ? "Update product" : "Create product"}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter></CardFooter>
     </Card>
   );
 };
 
-export default AddProductCard;
+export default ProductForm;

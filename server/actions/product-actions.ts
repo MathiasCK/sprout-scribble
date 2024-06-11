@@ -105,6 +105,8 @@ export const handleProduct = action(
         created: new Date(),
       });
 
+      revalidatePath("/dashboard/products");
+
       return { success: `Product "${title}" has been created` };
     } catch (error) {
       return {

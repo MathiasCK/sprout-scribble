@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { redirect } from "next/navigation";
-import { AddProductCard } from "~/components/dashboard";
+import { ProductForm } from "~/components/dashboard";
 import { auth } from "~/server/auth";
 
 const AddProductPage: NextPage = async () => {
@@ -10,7 +10,7 @@ const AddProductPage: NextPage = async () => {
     return redirect("/dashboard/settings");
   }
 
-  return <AddProductCard />;
+  return <ProductForm />;
 };
 
 export default AddProductPage;
