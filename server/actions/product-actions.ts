@@ -102,7 +102,6 @@ export const handleProduct = action(
         description,
         price,
         title,
-        created: new Date(),
       });
 
       revalidatePath("/dashboard/products");
