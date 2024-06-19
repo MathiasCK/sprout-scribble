@@ -8,16 +8,12 @@ import { cn } from "~/lib/utils";
 import { Badge } from "~/components/ui/badge";
 import { XIcon } from "lucide-react";
 
-type ProductVariantTagsProps = InputProps & {
+type VariantTagsProps = InputProps & {
   value: string[];
   onChange: Dispatch<SetStateAction<string[]>>;
 };
 
-const ProductVariantTags = ({
-  onChange,
-  value,
-  ...props
-}: ProductVariantTagsProps) => {
+const VariantTags = ({ onChange, value, ...props }: VariantTagsProps) => {
   const [pendingDataPoint, setPendingDataPoint] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
 
@@ -89,4 +85,4 @@ const ProductVariantTags = ({
   );
 };
 
-export default ProductVariantTags;
+export default VariantTags;

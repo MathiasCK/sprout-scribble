@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { ProductVariantTags } from "~/components/products";
+import { VariantTags, VariantImages } from "~/components/products";
 
 const ProductVariant = ({
   editMode,
@@ -56,7 +56,7 @@ const ProductVariant = ({
   return (
     <Dialog>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="lg:max-w-screen-lg overflow-y-scroll max-h-[860px] rounded-md">
         <DialogHeader>
           <DialogTitle>{editMode ? "Edit" : "Create"} your variant</DialogTitle>
           <DialogDescription>
@@ -102,16 +102,13 @@ const ProductVariant = ({
                 <FormItem>
                   <FormLabel>Variant tags</FormLabel>
                   <FormControl>
-                    <ProductVariantTags
-                      {...field}
-                      onChange={e => field.onChange(e)}
-                    />
+                    <VariantTags {...field} onChange={e => field.onChange(e)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* <VariantImages /> */}
+            <VariantImages />
             {editMode && variant && (
               <Button type="button" onClick={e => e.preventDefault()}>
                 Delete variant
