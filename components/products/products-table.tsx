@@ -23,8 +23,8 @@ const ProductsTable = async () => {
     title: product.title,
     description: product.description,
     price: product.price,
-    variants: [],
-    image: placholder.src,
+    variants: product.variants,
+    image: product?.variants[0]?.variantImages[0]?.url ?? placholder.src,
   }));
 
   if (!dataTable) throw new Error("No data found");

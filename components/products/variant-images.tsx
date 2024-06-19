@@ -12,7 +12,6 @@ import {
 } from "~/components/ui/form";
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
@@ -98,68 +97,67 @@ const VariantImages = () => {
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            <Reorder.Group
-              as="tbody"
-              values={fields}
-              onReorder={e => {
-                const activeElement = fields[active];
-                e.map((item, index) => {
-                  if (item === activeElement) {
-                    move(active, index);
-                    setActive(index);
-                    return;
-                  }
-                });
-                return;
-              }}
-            >
-              {fields.map((field, index) => (
-                <Reorder.Item
-                  as="tr"
-                  key={field.id}
-                  value={field}
-                  id={field.id}
-                  onDragStart={() => setActive(index)}
-                  className={cn(
-                    field.url.search("blob") === 0
-                      ? "animate-pulse transition-all"
-                      : "",
-                    "text-small font-bold text-muted-foreground hover:text-primary animate-none",
-                  )}
-                >
-                  <TableCell>{index}</TableCell>
-                  <TableCell>{field.name}</TableCell>
-                  <TableCell>
-                    {(field.size / (1024 * 1024)).toFixed()} MB
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center">
-                      <Image
-                        src={field.url}
-                        alt={field.name}
-                        className="rounded-md"
-                        width={72}
-                        height={48}
-                      />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant={"ghost"}
-                      className="scale-75"
-                      onClick={e => {
-                        e.preventDefault();
-                        remove(index);
-                      }}
-                    >
-                      <TrashIcon className="h-4" />
-                    </Button>
-                  </TableCell>
-                </Reorder.Item>
-              ))}
-            </Reorder.Group>
-          </TableBody>
+
+          <Reorder.Group
+            as="tbody"
+            values={fields}
+            onReorder={e => {
+              const activeElement = fields[active];
+              e.map((item, index) => {
+                if (item === activeElement) {
+                  move(active, index);
+                  setActive(index);
+                  return;
+                }
+              });
+              return;
+            }}
+          >
+            {fields.map((field, index) => (
+              <Reorder.Item
+                as="tr"
+                key={field.id}
+                value={field}
+                id={field.id}
+                onDragStart={() => setActive(index)}
+                className={cn(
+                  field.url.search("blob") === 0
+                    ? "animate-pulse transition-all"
+                    : "",
+                  "text-small font-bold text-muted-foreground hover:text-primary animate-none",
+                )}
+              >
+                <TableCell>{index}</TableCell>
+                <TableCell>{field.name}</TableCell>
+                <TableCell>
+                  {(field.size / (1024 * 1024)).toFixed()} MB
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-center">
+                    <Image
+                      src={field.url}
+                      alt={field.name}
+                      className="rounded-md"
+                      width={72}
+                      height={48}
+                    />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant={"ghost"}
+                    className="scale-75"
+                    onClick={e => {
+                      e.preventDefault();
+                      remove(index);
+                    }}
+                  >
+                    <TrashIcon className="h-4" />
+                  </Button>
+                </TableCell>
+              </Reorder.Item>
+            ))}
+          </Reorder.Group>
         </Table>
       </div>
     </>
