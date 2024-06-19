@@ -127,7 +127,7 @@ export const productColumns: ColumnDef<ProductColumn>[] = [
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>
-                  <ProductVariant productId={row.original.id} editMode={false}>
+                  <ProductVariant editMode={false}>
                     <PlusCircleIcon className="text-primary w-4 h-4" />
                   </ProductVariant>
                 </span>
