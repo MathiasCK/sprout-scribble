@@ -7,12 +7,21 @@ import {
   productVariants,
   variantTags as tags,
   variantImages as images,
+  products,
 } from "~/server/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
+import algoliaSearch from "algoliasearch";
 
 const action = createSafeActionClient();
+
+const algoliaClient = algoliaSearch(
+  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID as string,
+  process.env.ALGOLIOA_ADMIN_KEY as string,
+);
+
+const algoliaIndex = algoliaClient.initIndex("products");
 
 export const handleVariant = action(
   variantSchema,
@@ -56,6 +65,13 @@ export const handleVariant = action(
           })),
         );
 
+        algoliaIndex.partialUpdateObject({
+          objectID: editVariant[0].id.toString(),
+          productId: editVariant[0].productId,
+          productType: editVariant[0].productType,
+          variantImages: variantImages[0].url,
+        });
+
         revalidatePath("/dashboard/products");
         return { success: `Edited ${productType} variant` };
       }
@@ -68,6 +84,10 @@ export const handleVariant = action(
           productId,
         })
         .returning();
+
+      const product = await db.query.products.findFirst({
+        where: eq(products.id, productId),
+      });
 
       await db.insert(tags).values(
         variantTags.map(tag => ({
@@ -85,6 +105,17 @@ export const handleVariant = action(
           order: idx,
         })),
       );
+
+      if (product) {
+        algoliaIndex.saveObject({
+          objectID: newVariant[0].id.toString(),
+          productId: newVariant[0].productId,
+          title: product.title,
+          price: product.price,
+          productType: newVariant[0].productType,
+          variantImages: variantImages[0].url,
+        });
+      }
 
       revalidatePath("/dashboard/products");
       return { success: `Created ${productType} variant` };
@@ -115,6 +146,8 @@ export const deleteVariant = action(
       }
 
       await db.delete(productVariants).where(eq(productVariants.id, id));
+
+      algoliaIndex.deleteObject(currentVariant.id.toString());
 
       revalidatePath("/dashboard/products");
 
