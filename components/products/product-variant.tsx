@@ -27,7 +27,7 @@ import { VariantTags, VariantImages } from "~/components/products";
 import { deleteVariant, handleVariant } from "~/server/actions";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const ProductVariant = ({
   editMode,
@@ -54,10 +54,9 @@ const ProductVariant = ({
     },
   });
 
-  const setEdit = useCallback(() => {
+  useEffect(() => {
     if (!editMode) {
       form.reset();
-      return;
     }
 
     if (editMode && variant) {
@@ -67,7 +66,7 @@ const ProductVariant = ({
       form.setValue("productType", variant.productType);
       form.setValue(
         "variantTags",
-        variant.variantTags.map(tag => tag.tag),
+        variant.variantTags.map(tag => tag.tag)
       );
       form.setValue("color", variant.color);
       form.setValue(
@@ -76,14 +75,10 @@ const ProductVariant = ({
           name: img.name,
           size: img.size,
           url: img.url,
-        })),
+        }))
       );
     }
-  }, [editMode, variant, form]);
-
-  useEffect(() => {
-    setEdit();
-  }, [setEdit]);
+  }, []);
 
   const { execute: handleExecute, status: handleStatus } = useAction(
     handleVariant,
@@ -96,13 +91,14 @@ const ProductVariant = ({
       onSuccess: data => {
         if (data?.success) {
           toast.success(data.success);
+          form.reset();
           setDialogOpen(false);
         }
         if (data?.error) {
           toast.error(data.error);
         }
       },
-    },
+    }
   );
 
   const { execute: handleDelete, status: deleteStatus } = useAction(
@@ -123,7 +119,7 @@ const ProductVariant = ({
           toast.error(data.error);
         }
       },
-    },
+    }
   );
 
   const onSubmit = (values: z.infer<typeof variantSchema>) =>
@@ -132,7 +128,7 @@ const ProductVariant = ({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="lg:max-w-screen-lg overflow-y-scroll max-h-[860px] rounded-md">
+      <DialogContent className="max-h-[860px] overflow-y-scroll rounded-md lg:max-w-screen-lg">
         <DialogHeader>
           <DialogTitle>{editMode ? "Edit" : "Create"} your variant</DialogTitle>
           <DialogDescription>
@@ -185,7 +181,7 @@ const ProductVariant = ({
               )}
             />
             <VariantImages />
-            <div className="flex gap-4 items-center justify-center">
+            <div className="flex items-center justify-center gap-4">
               {editMode && variant && (
                 <Button
                   disabled={deleteStatus === "executing"}
