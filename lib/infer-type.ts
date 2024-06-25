@@ -40,3 +40,12 @@ export type ProductsWithVariants = InferResultType<
     variants: true;
   }
 >;
+
+export type VariantsWithProduct = InferResultType<
+  "productVariants",
+  {
+    variantImages: true;
+    variantTags: true;
+    product: true;
+  }
+>;
