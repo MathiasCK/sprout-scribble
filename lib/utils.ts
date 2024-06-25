@@ -19,3 +19,8 @@ export const getBaseURL = () => {
 
 export const UploadButton = generateUploadButton<FileRouter>();
 export const UploadDropzone = generateUploadDropzone<FileRouter>();
+
+export const formatPrice = (price: number) => new Intl.NumberFormat("en-US", {
+  style: 'currency',
+  currency: 'USD',
+}).format(price)

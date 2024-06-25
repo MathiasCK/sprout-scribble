@@ -61,11 +61,11 @@ const ActionCell = ({ row }: { row: Row<ProductColumn> }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem className="dark:focus:bg-primary focus:bg-primary/50 cursor-pointer">
+        <DropdownMenuItem className="cursor-pointer focus:bg-primary/50 dark:focus:bg-primary">
           <Link href={`/dashboard/product?id=${product.id}`}>Edit product</Link>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="dark:focus:bg-destructive focus:bg-destructive/50 cursor-pointer"
+          className="cursor-pointer focus:bg-destructive/50 dark:focus:bg-destructive"
           onClick={() =>
             execute({
               id: product.id,
@@ -94,9 +94,8 @@ export const productColumns: ColumnDef<ProductColumn>[] = [
     header: "Variants",
     cell: ({ row }) => {
       const variants = row.getValue("variants") as VariantsWithImagesTags[];
-
       return (
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2">
           {variants.map(variant => (
             <div key={variant.id}>
               <TooltipProvider>
@@ -105,14 +104,12 @@ export const productColumns: ColumnDef<ProductColumn>[] = [
                     <ProductVariant
                       productId={variant.productId}
                       variant={variant}
-                      editMode
+                      editMode={true}
                     >
                       <div
-                        className="w-5 h-5 rounded-full"
+                        className="h-5 w-5 rounded-full"
                         key={variant.id}
-                        style={{
-                          backgroundColor: variant.color,
-                        }}
+                        style={{ background: variant.color }}
                       />
                     </ProductVariant>
                   </TooltipTrigger>
@@ -127,8 +124,8 @@ export const productColumns: ColumnDef<ProductColumn>[] = [
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>
-                  <ProductVariant editMode={false}>
-                    <PlusCircleIcon className="text-primary w-4 h-4" />
+                  <ProductVariant productId={row.original.id} editMode={false}>
+                    <PlusCircleIcon className="h-5 w-5" />
                   </ProductVariant>
                 </span>
               </TooltipTrigger>
