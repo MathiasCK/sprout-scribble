@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, serial, timestamp, real } from "drizzle-orm/pg-core";
+import { reviews } from "./reviews-table";
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -40,6 +41,7 @@ export const variantTags = pgTable("variantTags", {
 
 export const productRelations = relations(products, ({ many }) => ({
   variants: many(productVariants, { relationName: "productVariants" }),
+  reviews: many(reviews, { relationName: "productReviews" }),
 }));
 
 export const productVariantRelations = relations(
@@ -52,7 +54,7 @@ export const productVariantRelations = relations(
     }),
     variantImages: many(variantImages, { relationName: "variantImages" }),
     variantTags: many(variantTags, { relationName: "variantTags" }),
-  }),
+  })
 );
 
 export const variantImagesRelations = relations(variantImages, ({ one }) => ({

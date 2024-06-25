@@ -1,5 +1,7 @@
 import { timestamp, pgTable, text, boolean, pgEnum } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
+import { relations } from "drizzle-orm";
+import { reviews } from "~/server/schema";
 
 export const RoleEnum = pgEnum("roles", ["user", "admin"]);
 
@@ -15,3 +17,7 @@ export const users = pgTable("user", {
   isTwoFactorEnabled: boolean("isTwoFactorEnabled").default(false),
   role: RoleEnum("role").default("user"),
 });
+
+export const userRelations = relations(users, ({ many }) => ({
+  reviews: many(reviews, { relationName: "userReviews" }),
+}));
