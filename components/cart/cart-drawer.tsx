@@ -1,14 +1,24 @@
 "use client";
 
 import { ShoppingBagIcon } from "lucide-react";
-import { Drawer, DrawerContent, DrawerTrigger } from "~/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTrigger,
+} from "~/components/ui/drawer";
 
 import { useCart } from "~/hooks";
 import { AnimatePresence, motion } from "framer-motion";
-import { CartItems } from "~/components/cart";
+import {
+  CartItems,
+  Payment,
+  Confirmation,
+  CartMessage,
+} from "~/components/cart";
 
 const CartDrawer = () => {
-  const { cart } = useCart();
+  const { cart, checkoutProgress } = useCart();
 
   return (
     <Drawer>
@@ -30,7 +40,14 @@ const CartDrawer = () => {
         </div>
       </DrawerTrigger>
       <DrawerContent className="min-h-50vh">
-        <CartItems />
+        <DrawerHeader>
+          <CartMessage />
+        </DrawerHeader>
+        <div className="overflow-auto p-4">
+          {checkoutProgress === "cart" && <CartItems />}
+          {checkoutProgress === "payment" && <Payment />}
+          {checkoutProgress === "confirmation" && <Confirmation />}
+        </div>
       </DrawerContent>
     </Drawer>
   );

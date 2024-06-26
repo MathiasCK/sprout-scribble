@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -15,16 +14,24 @@ export type CartItem = {
   price: number;
 };
 
+export type CheckoutProgress = "cart" | "payment" | "confirmation";
+
+/* eslint-disable no-unused-vars */
 export type CartState = {
   cart: CartItem[];
+  checkoutProgress: CheckoutProgress;
+  setCheckoutProgress: (progress: CheckoutProgress) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (item: CartItem) => void;
 };
+/* eslint-enable no-unused-vars */
 
 export const useCart = create<CartState>()(
   persist(
     set => ({
       cart: [],
+      checkoutProgress: "cart",
+      setCheckoutProgress: progress => set({ checkoutProgress: progress }),
       addToCart: item =>
         set(state => {
           const existingItem = state.cart.find(
