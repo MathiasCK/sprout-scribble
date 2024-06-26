@@ -11,12 +11,26 @@ import {
 } from "~/components/ui/table";
 import { useCart } from "~/hooks";
 import { formatPrice } from "~/lib/utils";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Lottie from "lottie-react";
 import emptyCart from "~/public/empty-box.json";
+import { createId } from "@paralleldrive/cuid2";
+import { useMemo } from "react";
 
 const CartItems = () => {
   const { cart, addToCart, removeFromCart } = useCart();
+
+  const totalPrice = useMemo(
+    () =>
+      cart.reduce((acc, item) => acc + item.price! * item.variant.quantity, 0),
+    [cart]
+  );
+
+  const priceInLetters = useMemo(() => {
+    return [...totalPrice.toFixed(2).toString()].map(letter => {
+      return { letter, id: createId() };
+    });
+  }, [totalPrice]);
 
   return (
     <motion.div className="flex flex-col items-center">
@@ -99,6 +113,26 @@ const CartItems = () => {
             </TableBody>
           </Table>
         </div>
+      )}
+      {cart.length > 0 && (
+        <motion.div className="relative my-4 flex items-center justify-center overflow-hidden">
+          <span className="text-md">Total: $</span>
+          <AnimatePresence mode="popLayout">
+            {priceInLetters.map((letter, i) => (
+              <motion.div key={letter.id}>
+                <motion.span
+                  initial={{ y: 20 }}
+                  animate={{ y: 0 }}
+                  exit={{ y: -20 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-md inline-block"
+                >
+                  {letter.letter}
+                </motion.span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </motion.div>
   );
