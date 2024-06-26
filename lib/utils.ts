@@ -20,7 +20,13 @@ export const getBaseURL = () => {
 export const UploadButton = generateUploadButton<FileRouter>();
 export const UploadDropzone = generateUploadDropzone<FileRouter>();
 
-export const formatPrice = (price: number) => new Intl.NumberFormat("en-US", {
-  style: 'currency',
-  currency: 'USD',
-}).format(price)
+export const formatPrice = (price: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(price);
+
+export const getReviewAverage = (reviews: number[]) =>
+  reviews.length === 0
+    ? 0
+    : reviews.reduce((acc, review) => acc + review, 0) / reviews.length;
