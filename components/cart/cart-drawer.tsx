@@ -29,7 +29,7 @@ const CartDrawer = () => {
           <ShoppingBagIcon />
         </div>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="min-h-50vh">
         <CartItems />
       </DrawerContent>
     </Drawer>

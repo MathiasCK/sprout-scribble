@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={roboto.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="mx-auto max-w-6xl flex-grow px-6 md:px-12">
+          <div className="max-w-8xl mx-auto flex-grow px-6 md:px-12">
             <Toaster />
             <Navbar />
             {children}
