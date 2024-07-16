@@ -16,6 +16,7 @@ export const users = pgTable("user", {
   password: text("password"),
   isTwoFactorEnabled: boolean("isTwoFactorEnabled").default(false),
   role: RoleEnum("role").default("user"),
+  customerId: text("customerId"),
 });
 
 export const userRelations = relations(users, ({ many }) => ({

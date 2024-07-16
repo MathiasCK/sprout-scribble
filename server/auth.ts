@@ -9,6 +9,7 @@ import db from "~/server";
 import { loginSchema } from "~/types";
 import { accounts, users } from "~/server/schema";
 import bcrypt from "bcrypt";
+import Stripe from "stripe";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db) as Adapter,
@@ -16,6 +17,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
+  },
+  events: {
+    createUser: async ({ user }) => {
+      const stripe = new Stripe(process.env.STRIPE_SECRET!, {
+        apiVersion: "2024-06-20",
+      });
+
+      const customer = await stripe.customers.create({
+        email: user.email!,
+        name: user.name!,
+      });
+
+      await db
+        .update(users)
+        .set({ customerId: customer.id })
+        .where(eq(users.id, user.id!));
+    },
   },
   callbacks: {
     async session({ session, token }) {
@@ -73,7 +91,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const passwordMatch = await bcrypt.compare(
           validatedFields.data.password,
-          user.password,
+          user.password
         );
 
         if (!passwordMatch) return null;
