@@ -4,3 +4,4 @@ export { default as CartItems } from "./cart-items";
 export { default as Payment } from "./payment";
 export { default as Confirmation } from "./confirmation";
 export { default as CartMessage } from "./cart-message";
+export { default as PaymentForm } from "./payment-form";
