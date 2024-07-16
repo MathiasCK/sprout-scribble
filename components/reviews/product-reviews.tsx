@@ -23,7 +23,7 @@ const ProductReviews = ({ reviews }: { reviews: ReviewsWithUser[] }) => {
             <div>
               <p className="text-sm font-bold">{review.user.name}</p>
               <div className="flex items-center gap-2">
-                <Stars rating={review.rating} />
+                <Stars rating={review.rating} isReview />
                 <p className="text-bold text-xs text-muted-foreground">
                   {formatDistance(subDays(review.created!, 0), new Date())}
                 </p>

@@ -1,7 +1,9 @@
-import { desc } from 'drizzle-orm';
-import { NextPage } from 'next';
-import { Products } from '~/components/products';
-import db from '~/server';
+import { desc } from "drizzle-orm";
+import { NextPage } from "next";
+import { Products } from "~/components/products";
+import db from "~/server";
+
+export const revalidate = 60 * 60;
 
 const Home: NextPage = async () => {
   const data = await db.query.productVariants.findMany({

@@ -11,6 +11,8 @@ import { formatPrice, getReviewAverage } from "~/lib/utils";
 import { Reviews, Stars } from "~/components/reviews";
 import { CartAdder } from "~/components/cart";
 
+export const revalidate = 60;
+
 export const generateStaticParams = async () => {
   const data = await db.query.productVariants.findMany({
     with: {
