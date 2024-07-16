@@ -9,14 +9,32 @@ import {
 import { useCart } from "~/hooks";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";
-import { createPaymentIntent } from "~/server/actions";
+import { createOrder, createPaymentIntent } from "~/server/actions";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
 
 const PaymentForm = ({ totalPrice }: { totalPrice: number }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { cart } = useCart();
+  const { cart, setCheckoutProgress } = useCart();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const { execute } = useAction(createOrder, {
+    onSuccess: data => {
+      setIsLoading(false);
+
+      if (data.success) {
+        toast.success(data.success);
+        setCheckoutProgress("confirmation");
+      }
+      if (data.error) {
+        toast.error(data.error);
+      }
+    },
+    onError: error => {
+      toast.error(error as string);
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +47,13 @@ const PaymentForm = ({ totalPrice }: { totalPrice: number }) => {
     const { error: submitError } = await elements.submit();
 
     if (submitError) {
-      setErrorMessage(submitError.message!);
+      toast.error(submitError.message!);
       setIsLoading(false);
       return;
     }
 
     const { data } = await createPaymentIntent({
-      amount: totalPrice,
+      amount: totalPrice * 100,
       currency: "usd",
       cart: cart.map(item => ({
         quantity: item.variant.quantity,
@@ -47,7 +65,7 @@ const PaymentForm = ({ totalPrice }: { totalPrice: number }) => {
     });
 
     if (data?.error || !data?.success) {
-      setErrorMessage(
+      toast.error(
         data?.error ?? '"An error occuerd whilst processing payment"'
       );
       setIsLoading(false);
@@ -65,12 +83,20 @@ const PaymentForm = ({ totalPrice }: { totalPrice: number }) => {
     });
 
     if (paymentError) {
-      setErrorMessage(paymentError.message!);
+      toast.error(paymentError.message!);
       setIsLoading(false);
       return;
     }
 
-    setIsLoading(false);
+    execute({
+      status: "pending",
+      total: totalPrice,
+      products: cart.map(item => ({
+        productId: item.id,
+        variantId: item.variant.variantId,
+        quantity: item.variant.quantity,
+      })),
+    });
   };
 
   return (
