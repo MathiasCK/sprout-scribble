@@ -18,10 +18,10 @@ import {
 } from "~/components/cart";
 
 const CartDrawer = () => {
-  const { cart, checkoutProgress } = useCart();
+  const { cart, checkoutProgress, cartOpen, setCartOpen } = useCart();
 
   return (
-    <Drawer>
+    <Drawer open={cartOpen} onOpenChange={setCartOpen}>
       <DrawerTrigger>
         <div className="relative px-2">
           <AnimatePresence>

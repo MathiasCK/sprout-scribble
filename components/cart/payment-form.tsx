@@ -16,7 +16,7 @@ import { toast } from "sonner";
 const PaymentForm = ({ totalPrice }: { totalPrice: number }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { cart, setCheckoutProgress } = useCart();
+  const { cart, setCheckoutProgress, clearCart } = useCart();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { execute } = useAction(createOrder, {
@@ -26,6 +26,7 @@ const PaymentForm = ({ totalPrice }: { totalPrice: number }) => {
       if (data.success) {
         toast.success(data.success);
         setCheckoutProgress("confirmation");
+        clearCart();
       }
       if (data.error) {
         toast.error(data.error);

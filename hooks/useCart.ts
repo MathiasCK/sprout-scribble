@@ -23,6 +23,9 @@ export type CartState = {
   setCheckoutProgress: (progress: CheckoutProgress) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (item: CartItem) => void;
+  clearCart: () => void;
+  cartOpen: boolean;
+  setCartOpen: (cartOpen: boolean) => void;
 };
 /* eslint-enable no-unused-vars */
 
@@ -84,6 +87,9 @@ export const useCart = create<CartState>()(
             cart: updatedCart.filter(cartItem => cartItem.variant.quantity > 0),
           };
         }),
+      clearCart: () => set({ cart: [] }),
+      cartOpen: false,
+      setCartOpen: cartOpen => set({ cartOpen }),
     }),
     {
       name: "cart-storage",
