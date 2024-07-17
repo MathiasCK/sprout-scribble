@@ -15,13 +15,23 @@ import {
   Payment,
   Confirmation,
   CartMessage,
+  CartProgress,
 } from "~/components/cart";
 
 const CartDrawer = () => {
-  const { cart, checkoutProgress, cartOpen, setCartOpen } = useCart();
+  const { cart, checkoutProgress, setCheckoutProgress, cartOpen, setCartOpen } =
+    useCart();
 
   return (
-    <Drawer open={cartOpen} onOpenChange={setCartOpen}>
+    <Drawer
+      open={cartOpen}
+      onOpenChange={setCartOpen}
+      onClose={() => {
+        if (checkoutProgress === "confirmation") {
+          setCheckoutProgress("cart");
+        }
+      }}
+    >
       <DrawerTrigger>
         <div className="relative px-2">
           <AnimatePresence>
@@ -43,6 +53,7 @@ const CartDrawer = () => {
         <DrawerHeader>
           <CartMessage />
         </DrawerHeader>
+        <CartProgress />
         <div className="overflow-auto p-4">
           {checkoutProgress === "cart" && <CartItems />}
           {checkoutProgress === "payment" && <Payment />}
