@@ -10,7 +10,7 @@ const action = createSafeActionClient();
 
 export const createOrder = action(
   orderSchema,
-  async ({ products, status, total }) => {
+  async ({ products, status, total, paymentIntentId }) => {
     try {
       const user = await auth();
 
@@ -25,6 +25,7 @@ export const createOrder = action(
         .values({
           status,
           total,
+          paymentIntentId,
           userId: user.user.id,
         })
         .returning();
